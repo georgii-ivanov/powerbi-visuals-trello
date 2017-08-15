@@ -25,35 +25,37 @@
  */
 
 module powerbi.extensibility.visual {
-    "use strict";
     export class Visual implements IVisual {
-        private target: HTMLElement;
-        private updateCount: number;
-        private settings: VisualSettings;
+        private updateCountContainer: JQuery;
+        private categoryList: JQuery;
+        private updateCount: number = 0;
 
         constructor(options: VisualConstructorOptions) {
-            console.log('Visual constructor', options);
-            this.target = options.element;
-            this.updateCount = 0;
+            this.updateCountContainer = $('<div>');
+            this.categoryList = $('<ul>');
+            let categoryListContainer = $('<div>').append('<h3>Categories</h3>').append(this.categoryList);
+
+            $(options.element)
+                //Display jquery version in visual
+                .append(`<p>JQuery Version: <em>${$.fn.jquery}</em></p>`)
+                //Display lodash version in visual
+                .append(`<p>Lodash Version: <em>${_.VERSION}</em></p>`)
+                //Add container for update count
+                .append(this.updateCountContainer)
+                //add container for category list
+                .append(categoryListContainer);
         }
 
         public update(options: VisualUpdateOptions) {
-            this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-            console.log('Visual update', options);
-            this.target.innerHTML = `<p>Update count: <em>${(this.updateCount++)}</em></p>`;
-        }
+            //Display update count
+            this.updateCountContainer.html(`<p>Update count: <em>${(this.updateCount++)}</em></p>`)
+                        
+            //Use lodash to safely get the categories
+            let categories = _.get<string[]>(options, 'dataViews.0.categorical.categories.0.values') || [];
 
-        private static parseSettings(dataView: DataView): VisualSettings {
-            return VisualSettings.parse(dataView) as VisualSettings;
-        }
-
-        /** 
-         * This function gets called for each of the objects defined in the capabilities files and allows you to select which of the 
-         * objects and properties you want to expose to the users in the property pane.
-         * 
-         */
-        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-            return VisualSettings.enumerateObjectInstances(this.settings || VisualSettings.getDefault(), options);
+            //Display list of categories
+            let categoryListItems = categories.map(c => $('<li>').text(c));
+            this.categoryList.empty().append(categoryListItems);
         }
     }
 }
