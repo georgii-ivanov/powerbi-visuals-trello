@@ -67,13 +67,18 @@ module powerbi.extensibility.visual {
                 // Create header
                 $('<h2 class="container__header" />')
                     .text(key)
+                    .css({ fontSize: this.settings.header.fontSize + 'pt' })
                     .appendTo(container);
 
                 // Create a new list container
                 let listContainer = $('<ul class="container__list" />');
 
                 // Display list of categories
-                let items = groupedValues[key].map(c => $('<li class="container__list-item">').text(c));
+                let items = groupedValues[key].map(c =>
+                    $('<li class="container__list-item">')
+                        .css({ fontSize: this.settings.items.fontSize + 'pt' })
+                        .text(c)
+                );
 
                 $(listContainer)
                     .append(items)
