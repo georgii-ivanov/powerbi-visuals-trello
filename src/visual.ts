@@ -29,7 +29,9 @@ module powerbi.extensibility.visual {
         private $root: JQuery;
 
         constructor(options: VisualConstructorOptions) {
-            this.$root = $(options.element);
+            // Create wrapper to don't use css !important
+            this.$root = $('<div class="root" />')
+                .appendTo(options.element);
         }
 
         public update(options: VisualUpdateOptions) {

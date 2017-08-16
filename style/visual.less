@@ -1,14 +1,37 @@
-p {
-    font-size: 20px;
-    font-weight: bold;
-    em {
-        background: yellow;
-        padding: 5px;
-        
-    }
+//********************************************//
+//  Code Style: Use simplified form of ITCSS  //
+// todo: move settings layer to settings.less //
+//********************************************//
+
+// Settings layer
+
+/** General container background color **/
+@container-bg-color: #E2E4E6;
+
+/** General container border radius **/
+@container-border-radius: 3px;
+
+/** Header font size **/
+@container-header-font-size: 1vw;
+
+// Elements layer
+
+.root {
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
-li {
-    list-style: disc;
-    font-weight: bold;
+.container {
+    background: @container-bg-color;
+    border-radius: @container-border-radius;
+    display: inline-block;
+
+    .container__header {
+        font-size: @container-header-font-size;
+    }
+
+    .container__list {
+        margin: 0;
+        padding: 0;
+    }
 }
