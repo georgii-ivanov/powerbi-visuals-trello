@@ -29,18 +29,12 @@ module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
 
     export class VisualSettings extends DataViewObjectsParser {
-      public dataPoint: dataPointSettings = new dataPointSettings();
+        public header: FontSizeSettings = new FontSizeSettings();
+        public items: FontSizeSettings = new FontSizeSettings();
       }
 
-    export class dataPointSettings {
+    export class FontSizeSettings {
         // Items scope
-        public header: object = {
-            fontSize: 14
-        };
-
-        // Items scope
-        public items: object = {
-            fontSize: 14
-        };
+        public fontSize: number = 10;
      }
 }

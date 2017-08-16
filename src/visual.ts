@@ -27,16 +27,28 @@
 module powerbi.extensibility.visual {
     export class Visual implements IVisual {
         private $root: JQuery;
+        private settings: VisualSettings;
 
         constructor(options: VisualConstructorOptions) {
             // Create wrapper to don't use css !important
-
             this.$root = $('<div class="root" />')
                 .appendTo(options.element);
         }
 
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            const settings: VisualSettings = this.settings
+                || VisualSettings.getDefault() as VisualSettings;
+
+            const instanceEnumeration: VisualObjectInstanceEnumeration =
+                VisualSettings.enumerateObjectInstances(settings, options);
+
+            return instanceEnumeration || [];
+        }
+
         public update(options: VisualUpdateOptions) {
-            // Use lodash to safely get the categories
+            this.settings = VisualSettings.parse<VisualSettings>(_.get<DataView>(options, 'dataViews.0'));
+
+                // Use lodash to safely get the categories
             let rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
 
             // Hash values to drop O(n^2) performance leak
