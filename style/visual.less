@@ -11,6 +11,9 @@
 /** Base font size **/
 @font-base: 4px;
 
+/** Root element background color **/
+@root-bg-color: rgb(0, 121, 191);;
+
 /** General container background color **/
 @container-bg-color: #E2E4E6;
 
@@ -26,13 +29,31 @@
 /** Color for list-item element **/
 @container-list-item-bg-color: white;
 
+/** Color for hovered list-item element **/
+@container-list-item-hover-bg-color: gray;
+
+/** Color for disabled list-item element **/
+@container-list-item-disabled-bg-color: gray;
+
 // Elements layer
 
 /** Root element style **/
 .root {
+    background-color: @root-bg-color;
     overflow-x: auto;
     white-space: nowrap;
     padding: @base * 6 0;
+}
+
+/** Modifier for filtered items state **/
+&.root_filtered {
+    .container__list-item {
+        background-color: @container-list-item-disabled-bg-color;
+
+        .container__list-item_focused {
+            background-color: @container-list-item-bg-color;
+        }
+    }
 }
 
 /** General container style **/
@@ -47,7 +68,7 @@
     /** Header style **/
     .container__header {
         font-size: @container-header-font-size;
-        margin: 0 0 @base 0;
+        margin: 0 0 @base * 2 0;
     }
 
     /** List style **/
