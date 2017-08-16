@@ -37,14 +37,11 @@ module powerbi.extensibility.visual {
 
         public update(options: VisualUpdateOptions) {
             // Use lodash to safely get the categories
-            let categories = _.get<string[]>(options, 'dataViews.0.categorical.categories.0.values', []);
-
-            // Use lodash to safely get the values
-            let values = _.get<string[]>(options, 'dataViews.0.categorical.values.0.values', []);
+            let rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
 
             // Hash values to drop O(n^2) performance leak
-            let groupedValues = categories.reduce((result, key, index) => {
-                (result[values[index]] = result[values[index]] || []).push(key);
+            let groupedValues = rows.reduce((result, value, index) => {
+                (result[rows[index][0]] = result[rows[index][0]] || []).push(value[1]);
                 return result;
             }, {});
 
