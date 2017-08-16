@@ -5,33 +5,60 @@
 
 // Settings layer
 
+/** Base linear size **/
+@base: 3px;
+
+/** Base font size **/
+@font-base: 4px;
+
 /** General container background color **/
 @container-bg-color: #E2E4E6;
 
 /** General container border radius **/
-@container-border-radius: 3px;
+@container-border-radius: @base;
 
 /** Header font size **/
-@container-header-font-size: 1vw;
+@container-header-font-size: @font-base * 3;
+
+/** Container left offset **/
+@container-offset: @base * 2;
+
+/** Color for list-item element **/
+@container-list-item-bg-color: white;
 
 // Elements layer
 
+/** Root element style **/
 .root {
     overflow-x: auto;
     white-space: nowrap;
+    padding: @base * 6 0;
 }
 
+/** General container style **/
 .container {
+    margin: 0 @container-offset;
+    padding: @base * 2;
     background: @container-bg-color;
     border-radius: @container-border-radius;
     display: inline-block;
 
+    /** Header style **/
     .container__header {
         font-size: @container-header-font-size;
+        margin: 0 0 @base 0;
     }
 
+    /** List style **/
     .container__list {
         margin: 0;
         padding: 0;
+    }
+
+    /** List Item style **/
+    .container__list-item {
+        background-color: @container-list-item-bg-color;
+        border-radius: @base * .5;
+        padding: @base;
     }
 }
