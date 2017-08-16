@@ -49,15 +49,26 @@ module powerbi.extensibility.visual {
             this.$root.empty();
 
             Object.keys(groupedValues).map(key => {
-                // Create new container
-                let container = $('<ul />');
+                // Create general container
+                let container = $('<div />');
 
-                //Display list of categories
+                // Create header
+                $('<h2 />')
+                    .text(key)
+                    .appendTo(container);
+
+                // Create a new list container
+                let listContainer = $('<ul />');
+
+                // Display list of categories
                 let items = groupedValues[key].map(c => $('<li>').text(c));
 
-                $(container)
+                $(listContainer)
                     .append(items)
-                    .appendTo(this.$root);
+                    .appendTo(container);
+
+                // Append general container to root pbi element
+                this.$root.append(container);
             });
         }
     }
