@@ -26,24 +26,39 @@
 
 module powerbi.extensibility.visual {
     export class Visual implements IVisual {
-        private updateCountContainer: JQuery;
-        private categoryList: JQuery;
-        private updateCount: number = 0;
+        private $root: JQuery;
 
         constructor(options: VisualConstructorOptions) {
-            this.categoryList = $('<ul>');
-            let categoryListContainer = $('<div>').append(this.categoryList);
-
-            $(options.element).append(categoryListContainer);
+            this.$root = $(options.element);
         }
 
         public update(options: VisualUpdateOptions) {
-            //Use lodash to safely get the categories
+            // Use lodash to safely get the categories
             let categories = _.get<string[]>(options, 'dataViews.0.categorical.categories.0.values', []);
 
-            //Display list of categories
-            let categoryListItems = categories.map(c => $('<li>').text(c));
-            this.categoryList.empty().append(categoryListItems);
+            // Use lodash to safely get the values
+            let values = _.get<string[]>(options, 'dataViews.0.categorical.values.0.values', []);
+
+            // Hash values to drop O(n^2) performance leak
+            let groupedValues = values.reduce((result, key, index) => {
+                (result[categories[index]] = result[categories[index]] || []).push(key);
+                return result;
+            }, {});
+
+            // clear all previous items
+            this.$root.empty();
+
+            Object.keys(groupedValues).map(key => {
+                // Create new container
+                let container = $('<ul />');
+
+                //Display list of categories
+                let items = groupedValues[key].map(c => $('<li>').text(c));
+
+                $(container)
+                    .append(items)
+                    .appendTo(this.$root);
+            });
         }
     }
 }
