@@ -1,4 +1,4 @@
-#Power BI Trello-like visual
+# Power BI Trello-like visual
 
 This is Trello-like visual module for PowerBI.
 
