@@ -31,5 +31,37 @@
                 }
             }
         }
-    ]
+    ],
+    "objects": {
+        "header": {
+            "displayName": "Header",
+            "displayNameKey": "Visual_Header",
+            "properties": {
+                "fontSize": {
+                    "displayName": "Text Size",
+                    "displayNameKey": "Visual_TextSize",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                }
+            }
+        },
+        "items": {
+            "displayName": "Items",
+            "displayNameKey": "Visual_Items",
+            "properties": {
+                "fontSize": {
+                    "displayName": "Text Size",
+                    "displayNameKey": "Visual_TextSize",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
