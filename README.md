@@ -20,3 +20,11 @@ To build the package use:
 ```
 pbiviz package
 ```
+
+If you have a problems with API while start visual try to run following:
+
+```
+pbiviz update
+```
+
+To update your api version.
