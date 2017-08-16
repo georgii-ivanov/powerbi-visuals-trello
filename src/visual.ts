@@ -30,6 +30,7 @@ module powerbi.extensibility.visual {
 
         constructor(options: VisualConstructorOptions) {
             // Create wrapper to don't use css !important
+
             this.$root = $('<div class="root" />')
                 .appendTo(options.element);
         }
@@ -42,8 +43,8 @@ module powerbi.extensibility.visual {
             let values = _.get<string[]>(options, 'dataViews.0.categorical.values.0.values', []);
 
             // Hash values to drop O(n^2) performance leak
-            let groupedValues = values.reduce((result, key, index) => {
-                (result[categories[index]] = result[categories[index]] || []).push(key);
+            let groupedValues = categories.reduce((result, key, index) => {
+                (result[values[index]] = result[values[index]] || []).push(key);
                 return result;
             }, {});
 

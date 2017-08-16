@@ -1,12 +1,12 @@
 {
     "dataRoles": [
         {
-            "displayName": "Grouping Data",
+            "displayName": "Display Data",
             "name": "category",
             "kind": "Grouping"
         },
         {
-            "displayName": "Display Data",
+            "displayName": "Grouping Data",
             "name": "measure",
             "kind": "Measure"
         }
