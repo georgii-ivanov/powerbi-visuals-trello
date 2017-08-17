@@ -26,13 +26,15 @@
 
 module powerbi.extensibility.visual {
     export class Visual implements IVisual {
-        private $root: JQuery;
+        private $root: d3.Selection<Element>;
         private settings: VisualSettings;
 
         constructor(options: VisualConstructorOptions) {
             // Create wrapper to don't use css !important
-            this.$root = $('<div class="root" />')
-                .appendTo(options.element);
+
+            this.$root = d3.select(options.element)
+                .append('div')
+                .attr('class', 'root');
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
@@ -58,34 +60,34 @@ module powerbi.extensibility.visual {
             }, {});
 
             // clear all previous items
-            this.$root.empty();
+            this.$root.html(null);
 
             Object.keys(groupedValues).map(key => {
                 // Create general container
-                let container = $('<div class="container" />');
+                let container = this.$root
+                    .append('div')
+                    .attr('class', 'container');
 
                 // Create header
-                $('<h2 class="container__header" />')
+                container
+                    .append('h2')
+                    .attr('class', 'container__header')
                     .text(key)
-                    .css({ fontSize: this.settings.header.fontSize + 'pt' })
-                    .appendTo(container);
+                    .style({ fontSize: this.settings.header.fontSize + 'pt' });
 
                 // Create a new list container
-                let listContainer = $('<ul class="container__list" />');
+                let listContainer = container
+                    .append('ul')
+                    .attr('class', 'container__list');
 
                 // Display list of categories
-                let items = groupedValues[key].map(c =>
-                    $('<li class="container__list-item">')
-                        .css({ fontSize: this.settings.items.fontSize + 'pt' })
+                groupedValues[key].map(c =>
+                    listContainer
+                        .append('li')
+                        .attr('class', 'container__list-item')
+                        .style({ fontSize: this.settings.items.fontSize + 'pt' })
                         .text(c)
                 );
-
-                $(listContainer)
-                    .append(items)
-                    .appendTo(container);
-
-                // Append general container to root pbi element
-                this.$root.append(container);
             });
         }
     }
