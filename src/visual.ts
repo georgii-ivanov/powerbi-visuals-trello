@@ -32,6 +32,7 @@ module powerbi.extensibility.visual {
         private selectionIdBuilder: ISelectionIdBuilder;
         private selectionManager: ISelectionManager;
         private selections: ISelectionId[];
+        private rows: any[];
 
         constructor(options: VisualConstructorOptions) {
             // Creates unique selectors for selection
@@ -52,17 +53,38 @@ module powerbi.extensibility.visual {
                     const target = d3.select((<MouseEvent>d3.event).target);
 
                     // If captured some object with selection data
-                    const targetSelectionData = target.data()[0];
+                    const targetSelection = target.data()[0];
 
-                    if (targetSelectionData) {
+                    if (targetSelection) {
+                        const targetSelectionData = targetSelection.selection;
+                        const targetSelectionValue = targetSelection.item;
+
+                        this.$root.attr('class', 'root root_filtered');
+
                         // Do selection
-                        this.selectionManager.select(targetSelectionData, true).then((ids: ISelectionId[]) => {
-                            console.log(targetSelectionData, 'selected');
+                        this.selectionManager.clear().then(() => {
+                            const selections = [];
+                            d3.selectAll('.container__list-item')
+                                .each(function(datum) {
+                                    const selectionItem = d3.select(this);
+                                    selectionItem.attr('class', 'container__list-item');
+                                    if (datum.item === targetSelectionValue) {
+                                        selections.push(datum.selection);
+                                        selectionItem
+                                            .attr(
+                                                'class',
+                                                'container__list-item container__list-item_focused'
+                                            );
+                                    }
+                                });
+                            this.selectionManager.select(selections);
                         });
                     } else {
                         // Do unselection
                         this.selectionManager.clear().then(() => {
-                            console.log('unselected');
+                            d3.select('.container__list-item_focused')
+                                .attr('class', 'container__list-item');
+                            this.$root.attr('class', 'root');
                         });
                     }
                 });
@@ -101,12 +123,12 @@ module powerbi.extensibility.visual {
             // Generate selections
             this.selections = this.getSelectionIds(dataView);
 
-                // Use lodash to safely get the categories
-            let rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
+            // Use lodash to safely get the categories
+            this.rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
 
             // Hash values to drop O(n^2) performance leak
-            let groupedValues = rows.reduce((result, value, index) => {
-                (result[rows[index][0]] = result[rows[index][0]] || {})[index] = value[1];
+            let groupedValues = this.rows.reduce((result, value, index) => {
+                (result[this.rows[index][0]] = result[this.rows[index][0]] || {})[index] = value[1];
                 return result;
             }, {});
 
@@ -135,9 +157,9 @@ module powerbi.extensibility.visual {
                 Object.keys(groupedValues[key]).map(itemKey => {
                     return listContainer
                         .append('li')
-                        .data([this.selections[itemKey]])
+                        .data([{ item: groupedValues[key][itemKey], selection: this.selections[itemKey] }])
                         .attr('class', 'container__list-item')
-                        .style({fontSize: this.settings.items.fontSize + 'pt'})
+                        .style({ fontSize: this.settings.items.fontSize + 'pt' })
                         .text(groupedValues[key][itemKey])
                 });
             });
