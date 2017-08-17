@@ -55,8 +55,14 @@ module powerbi.extensibility.visual {
                     const targetSelectionData = target.data()[0];
 
                     if (targetSelectionData) {
+                        // Do selection
                         this.selectionManager.select(targetSelectionData, true).then((ids: ISelectionId[]) => {
                             console.log(targetSelectionData, 'selected');
+                        });
+                    } else {
+                        // Do unselection
+                        this.selectionManager.clear().then(() => {
+                            console.log('unselected');
                         });
                     }
                 });
