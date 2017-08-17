@@ -166,15 +166,16 @@ module powerbi.extensibility.visual {
 
             // Hash values to drop O(n^2) performance leak
             let groupedValues = rows.reduce((result, value, index) => {
-                (result[rows[index][0]] = result[rows[index][0]] || {})[index] = value[1];
+                const [ groupItem, displayItem, ...tooltipInfo ] = rows[index];
 
-                // Used that ugly way because TypeScript currently doesn't supports array destruction
-                tooltipData[index] = rows[index]
-                    .slice(2)
-                    .map((tooltipInfo, colIndex) => {
+                (result[groupItem] = result[groupItem] || {})[index] = displayItem;
+
+                // Build tooltip display data
+                tooltipData[index] = tooltipInfo
+                    .map((tooltipValue, colIndex) => {
                         return {
                             displayName: columns[colIndex + 2].displayName,
-                            value: tooltipInfo
+                            value: tooltipValue
                         }
                     });
 
@@ -209,13 +210,13 @@ module powerbi.extensibility.visual {
                         .data([{
                             item: groupedValues[key][itemKey],
                             selection: this.selections[itemKey],
-                            tooltipInfo: tooltipData[itemKey] ? tooltipData[itemKey] : null
+                            tooltipInfo: tooltipData[itemKey]
                         }])
                         .attr('class', 'container__list-item')
                         .style({ fontSize: this.settings.items.fontSize + 'pt' })
                         .text(groupedValues[key][itemKey]);
 
-                    this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
+                    (tooltipData[itemKey].length > 0) && this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
                         listItem,
                         (eventArgs: TooltipEventArgs<TooltipEnabledDataPoint>) => {
                         return eventArgs.data.tooltipInfo;
