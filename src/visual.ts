@@ -167,14 +167,17 @@ module powerbi.extensibility.visual {
             // Hash values to drop O(n^2) performance leak
             let groupedValues = rows.reduce((result, value, index) => {
                 (result[rows[index][0]] = result[rows[index][0]] || {})[index] = value[1];
+
+                // Used that ugly way because TypeScript currently doesn't supports array destruction
                 tooltipData[index] = rows[index]
                     .slice(2)
-                    .map((tooltipInfo) => [
-                        {
-                            displayName: columns[index].displayName,
+                    .map((tooltipInfo, colIndex) => {
+                        return {
+                            displayName: columns[colIndex + 2].displayName,
                             value: tooltipInfo
                         }
-                    ]);
+                    });
+
                 return result;
             }, {});
 
