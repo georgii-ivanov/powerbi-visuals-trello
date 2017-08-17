@@ -25,6 +25,11 @@
  */
 
 module powerbi.extensibility.visual {
+    import tooltip = powerbi.extensibility.utils.tooltip;
+    import TooltipEnabledDataPoint = powerbi.extensibility.utils.tooltip.TooltipEnabledDataPoint;
+    import TooltipEventArgs = powerbi.extensibility.utils.tooltip.TooltipEventArgs;
+    import ITooltipServiceWrapper = powerbi.extensibility.utils.tooltip.ITooltipServiceWrapper;
+
     export class Visual implements IVisual {
         private $root: d3.Selection<Element>;
         private host: IVisualHost;
@@ -32,13 +37,15 @@ module powerbi.extensibility.visual {
         private selectionIdBuilder: ISelectionIdBuilder;
         private selectionManager: ISelectionManager;
         private selections: ISelectionId[];
-        private rows: any[];
+        private tooltipService: ITooltipServiceWrapper;
 
         /** Constructor
          *
          * @param {powerbi.extensibility.visual.VisualConstructorOptions} options Options to init
          */
         constructor(options: VisualConstructorOptions) {
+            this.tooltipService = tooltip.createTooltipServiceWrapper(options.host.tooltipService, options.element);
+
             // Creates unique selectors for selection
             this.selectionIdBuilder = options.host.createSelectionIdBuilder();
 
@@ -59,14 +66,13 @@ module powerbi.extensibility.visual {
         /**
          * Method to handle selection on visual.
          */
-        private handleSelection(): void {
+        private handleSelection = (): void => {
             const target = d3.select((<MouseEvent>d3.event).target);
 
             // If captured some object with selection data
             const targetSelection = target.data()[0];
 
             if (targetSelection) {
-                const targetSelectionData = targetSelection.selection;
                 const targetSelectionValue = targetSelection.item;
 
                 this.$root.attr('class', 'root root_filtered');
@@ -149,12 +155,26 @@ module powerbi.extensibility.visual {
             // Generate selections
             this.selections = this.getSelectionIds(dataView);
 
-            // Use lodash to safely get the categories
-            this.rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
+            // Use lodash to safely get the rows
+            const rows = _.get<any[]>(options, 'dataViews.0.table.rows', []);
+
+            // Use lodash to safely get the columns
+            const columns = _.get<any[]>(options, 'dataViews.0.table.columns', []);
+
+            // Create tooltip data to display tooltips on items
+            let tooltipData = [];
 
             // Hash values to drop O(n^2) performance leak
-            let groupedValues = this.rows.reduce((result, value, index) => {
-                (result[this.rows[index][0]] = result[this.rows[index][0]] || {})[index] = value[1];
+            let groupedValues = rows.reduce((result, value, index) => {
+                (result[rows[index][0]] = result[rows[index][0]] || {})[index] = value[1];
+                tooltipData[index] = rows[index]
+                    .slice(2)
+                    .map((tooltipInfo) => [
+                        {
+                            displayName: columns[index].displayName,
+                            value: tooltipInfo
+                        }
+                    ]);
                 return result;
             }, {});
 
@@ -181,12 +201,25 @@ module powerbi.extensibility.visual {
 
                 // Display list of categories
                 Object.keys(groupedValues[key]).map(itemKey => {
-                    return listContainer
+                    const listItem = listContainer
                         .append('li')
-                        .data([{ item: groupedValues[key][itemKey], selection: this.selections[itemKey] }])
+                        .data([{
+                            item: groupedValues[key][itemKey],
+                            selection: this.selections[itemKey],
+                            tooltipInfo: tooltipData[itemKey] ? tooltipData[itemKey] : null
+                        }])
                         .attr('class', 'container__list-item')
                         .style({ fontSize: this.settings.items.fontSize + 'pt' })
-                        .text(groupedValues[key][itemKey])
+                        .text(groupedValues[key][itemKey]);
+
+                    this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
+                        listItem,
+                        (eventArgs: TooltipEventArgs<TooltipEnabledDataPoint>) => {
+                        return eventArgs.data.tooltipInfo;
+                        }
+                    );
+
+                    return listItem;
                 });
             });
         }

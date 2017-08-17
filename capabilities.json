@@ -9,6 +9,11 @@
             "displayName": "Display Data",
             "name": "category",
             "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Tooltip",
+            "name": "tooltip",
+            "kind": "GroupingOrMeasure"
         }
     ],
     "dataViewMappings": [
@@ -25,6 +30,12 @@
                         {
                             "for": {
                                 "in": "measure"
+                            }
+                        },
+
+                        {
+                            "for": {
+                                "in": "tooltip"
                             }
                         }
                     ]
