@@ -27,14 +27,53 @@
 module powerbi.extensibility.visual {
     export class Visual implements IVisual {
         private $root: d3.Selection<Element>;
+        private host: IVisualHost;
         private settings: VisualSettings;
+        private selectionIdBuilder: ISelectionIdBuilder;
+        private selectionManager: ISelectionManager;
+        private selections: ISelectionId[];
 
         constructor(options: VisualConstructorOptions) {
+            // Creates unique selectors for selection
+            this.selectionIdBuilder = options.host.createSelectionIdBuilder();
+
+            // Creates selection manager to handle selections
+            this.selectionManager = options.host.createSelectionManager();
+
+            // Save host
+            this.host = options.host;
+
             // Create wrapper to don't use css !important
 
             this.$root = d3.select(options.element)
                 .append('div')
-                .attr('class', 'root');
+                .attr('class', 'root')
+                .on('click', () => {
+                    const target = d3.select((<MouseEvent>d3.event).target);
+
+                    // If captured some object with selection data
+                    const targetSelectionData = target.data()[0];
+
+                    if (targetSelectionData) {
+                        this.selectionManager.select(targetSelectionData, true).then((ids: ISelectionId[]) => {
+                            console.log(targetSelectionData, 'selected');
+                        });
+                    }
+                });
+        }
+
+        private getSelectionIds(dataView: DataView): ISelectionId[] {
+            return dataView.table.identity.map((identity: DataViewScopeIdentity) => {
+                const categoryColumn: DataViewCategoryColumn = {
+                    source: dataView.table.columns[0],
+                    values: null,
+                    identity: [identity]
+                };
+
+                return this.host.createSelectionIdBuilder()
+                    .withCategory(categoryColumn, 0)
+                    .createSelectionId();
+            });
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
@@ -48,14 +87,20 @@ module powerbi.extensibility.visual {
         }
 
         public update(options: VisualUpdateOptions) {
-            this.settings = VisualSettings.parse<VisualSettings>(_.get<DataView>(options, 'dataViews.0'));
+            const dataView = _.get<DataView>(options, 'dataViews.0');
+
+            // Parse external settings
+            this.settings = VisualSettings.parse<VisualSettings>(dataView);
+
+            // Generate selections
+            this.selections = this.getSelectionIds(dataView);
 
                 // Use lodash to safely get the categories
             let rows = _.get<string[]>(options, 'dataViews.0.table.rows', []);
 
             // Hash values to drop O(n^2) performance leak
             let groupedValues = rows.reduce((result, value, index) => {
-                (result[rows[index][0]] = result[rows[index][0]] || []).push(value[1]);
+                (result[rows[index][0]] = result[rows[index][0]] || {})[index] = value[1];
                 return result;
             }, {});
 
@@ -81,13 +126,14 @@ module powerbi.extensibility.visual {
                     .attr('class', 'container__list');
 
                 // Display list of categories
-                groupedValues[key].map(c =>
-                    listContainer
+                Object.keys(groupedValues[key]).map(itemKey => {
+                    return listContainer
                         .append('li')
+                        .data([this.selections[itemKey]])
                         .attr('class', 'container__list-item')
-                        .style({ fontSize: this.settings.items.fontSize + 'pt' })
-                        .text(c)
-                );
+                        .style({fontSize: this.settings.items.fontSize + 'pt'})
+                        .text(groupedValues[key][itemKey])
+                });
             });
         }
     }
