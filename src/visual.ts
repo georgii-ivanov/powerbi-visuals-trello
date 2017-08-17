@@ -34,6 +34,10 @@ module powerbi.extensibility.visual {
         private selections: ISelectionId[];
         private rows: any[];
 
+        /** Constructor
+         *
+         * @param {powerbi.extensibility.visual.VisualConstructorOptions} options Options to init
+         */
         constructor(options: VisualConstructorOptions) {
             // Creates unique selectors for selection
             this.selectionIdBuilder = options.host.createSelectionIdBuilder();
@@ -49,47 +53,58 @@ module powerbi.extensibility.visual {
             this.$root = d3.select(options.element)
                 .append('div')
                 .attr('class', 'root')
-                .on('click', () => {
-                    const target = d3.select((<MouseEvent>d3.event).target);
-
-                    // If captured some object with selection data
-                    const targetSelection = target.data()[0];
-
-                    if (targetSelection) {
-                        const targetSelectionData = targetSelection.selection;
-                        const targetSelectionValue = targetSelection.item;
-
-                        this.$root.attr('class', 'root root_filtered');
-
-                        // Do selection
-                        this.selectionManager.clear().then(() => {
-                            const selections = [];
-                            d3.selectAll('.container__list-item')
-                                .each(function(datum) {
-                                    const selectionItem = d3.select(this);
-                                    selectionItem.attr('class', 'container__list-item');
-                                    if (datum.item === targetSelectionValue) {
-                                        selections.push(datum.selection);
-                                        selectionItem
-                                            .attr(
-                                                'class',
-                                                'container__list-item container__list-item_focused'
-                                            );
-                                    }
-                                });
-                            this.selectionManager.select(selections);
-                        });
-                    } else {
-                        // Do unselection
-                        this.selectionManager.clear().then(() => {
-                            d3.select('.container__list-item_focused')
-                                .attr('class', 'container__list-item');
-                            this.$root.attr('class', 'root');
-                        });
-                    }
-                });
+                .on('click', this.handleSelection);
         }
 
+        /**
+         * Method to handle selection on visual.
+         */
+        private handleSelection(): void {
+            const target = d3.select((<MouseEvent>d3.event).target);
+
+            // If captured some object with selection data
+            const targetSelection = target.data()[0];
+
+            if (targetSelection) {
+                const targetSelectionData = targetSelection.selection;
+                const targetSelectionValue = targetSelection.item;
+
+                this.$root.attr('class', 'root root_filtered');
+
+                // Do selection
+                this.selectionManager.clear().then(() => {
+                    const selections = [];
+                    d3.selectAll('.container__list-item')
+                        .each(function(datum) {
+                            const selectionItem = d3.select(this);
+                            selectionItem.attr('class', 'container__list-item');
+                            if (datum.item === targetSelectionValue) {
+                                selections.push(datum.selection);
+                                selectionItem
+                                    .attr(
+                                        'class',
+                                        'container__list-item container__list-item_focused'
+                                    );
+                            }
+                        });
+                    this.selectionManager.select(selections);
+                });
+            } else {
+                // Do unselection
+                this.selectionManager.clear().then(() => {
+                    d3.select('.container__list-item_focused')
+                        .attr('class', 'container__list-item');
+                    this.$root.attr('class', 'root');
+                });
+            }
+        }
+
+        /**
+         * Get selection items.
+         *
+         * @param {powerbi.DataView} dataView Current DataView
+         * @returns {powerbi.extensibility.ISelectionId[]}
+         */
         private getSelectionIds(dataView: DataView): ISelectionId[] {
             return dataView.table.identity.map((identity: DataViewScopeIdentity) => {
                 const categoryColumn: DataViewCategoryColumn = {
@@ -104,6 +119,12 @@ module powerbi.extensibility.visual {
             });
         }
 
+        /**
+         * Enumerate all objects instances for settings.
+         *
+         * @param {powerbi.EnumerateVisualObjectInstancesOptions} options
+         * @returns {powerbi.VisualObjectInstanceEnumeration}
+         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             const settings: VisualSettings = this.settings
                 || VisualSettings.getDefault() as VisualSettings;
@@ -114,6 +135,11 @@ module powerbi.extensibility.visual {
             return instanceEnumeration || [];
         }
 
+        /**
+         * Update method.
+         *
+         * @param {powerbi.extensibility.visual.VisualUpdateOptions} options Update options for visual.
+         */
         public update(options: VisualUpdateOptions) {
             const dataView = _.get<DataView>(options, 'dataViews.0');
 
