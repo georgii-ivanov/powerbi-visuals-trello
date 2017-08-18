@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "allowJs": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES5",
     "sourceMap": true,
-    "out": "./.tmp/build/visual.js"
+    "out": "./.tmp/build/visual.js",
+    "sourceRoot": "../../src/",
+    "declaration": true
   },
   "files": [
     ".api/v1.7.0/PowerBI-visuals.d.ts",
     "typings/index.d.ts",
-    "node_modules/jquery/dist/jquery.js",
-    "node_modules/lodash/lodash.js",
+    "node_modules/@types/jquery/index.d.ts",
+    "node_modules/@types/lodash/index.d.ts",
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.d.ts",
     "node_modules/@types/d3/index.d.ts",
     "node_modules/powerbi-visuals-utils-tooltiputils/lib/index.d.ts",
