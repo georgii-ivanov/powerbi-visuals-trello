@@ -196,7 +196,7 @@ module powerbi.extensibility.visual {
                     .append('h2')
                     .attr('class', 'container__header')
                     .text(key)
-                    .style({ fontSize: this.settings.header.fontSize + 'pt' });
+                    .style({ 'font-size': this.settings.header.fontSize + 'pt' });
 
                 // Create a new list container
                 let listContainer = container
@@ -213,7 +213,7 @@ module powerbi.extensibility.visual {
                             tooltipInfo: tooltipData[itemKey]
                         }])
                         .attr('class', 'container__list-item')
-                        .style({ fontSize: this.settings.items.fontSize + 'pt' })
+                        .style({ 'font-size': this.settings.items.fontSize + 'pt' })
                         .text(groupedValues[key][itemKey]);
 
                     (tooltipData[itemKey].length > 0) && this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
