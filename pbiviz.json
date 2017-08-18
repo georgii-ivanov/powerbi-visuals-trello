@@ -1,7 +1,7 @@
 {
   "visual": {
-    "name": "testCustomVizV120",
-    "displayName": "test custom viz v120",
+    "name": "Trello Vizual",
+    "displayName": "Trello Visual for PowerBI",
     "guid": "TrelloViz1503056644",
     "visualClassName": "Visual",
     "version": "1.0.0",
