@@ -68,7 +68,7 @@ module.exports = (config) => {
                 included: false,
                 served: true
             }
-        ],
+        ]
         preprocessors: {
             [recursivePathToTests]: ['typescript'],
             [srcRecursivePath]: ['sourcemap', 'coverage']
