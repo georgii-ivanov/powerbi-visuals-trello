@@ -3,6 +3,5 @@ node_modules
 .tmp
 dist
 typings
-.api
 *.log
 /coverage
