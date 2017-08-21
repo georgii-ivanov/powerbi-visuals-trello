@@ -36,7 +36,7 @@ module powerbi.extensibility.visual {
         private settings: VisualSettings;
         private selectionIdBuilder: ISelectionIdBuilder;
         private selectionManager: ISelectionManager;
-        private selections: ISelectionId[];
+        private selections: ISelectionId[] = [];
         private tooltipService: ITooltipServiceWrapper;
 
         /** Constructor
@@ -112,7 +112,7 @@ module powerbi.extensibility.visual {
          * @returns {powerbi.extensibility.ISelectionId[]}
          */
         private getSelectionIds(dataView: DataView): ISelectionId[] {
-            return dataView.table.identity.map((identity: DataViewScopeIdentity) => {
+            return _.get(dataView, 'table.identity') ? dataView.table.identity.map((identity: DataViewScopeIdentity) => {
                 const categoryColumn: DataViewCategoryColumn = {
                     source: dataView.table.columns[0],
                     values: null,
@@ -122,7 +122,7 @@ module powerbi.extensibility.visual {
                 return this.host.createSelectionIdBuilder()
                     .withCategory(categoryColumn, 0)
                     .createSelectionId();
-            });
+            }) : [];
         }
 
         /**
@@ -217,7 +217,8 @@ module powerbi.extensibility.visual {
                         .style({ 'font-size': this.settings.items.fontSize + 'pt' })
                         .text(groupedValues[key][itemKey]);
 
-                    (tooltipData[itemKey].length > 0) && this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
+                    (tooltipData[itemKey]) && (tooltipData[itemKey].length > 0) && 
+                    this.tooltipService.addTooltip<TooltipEnabledDataPoint>(
                         listItem,
                         (eventArgs: TooltipEventArgs<TooltipEnabledDataPoint>) => {
                         return eventArgs.data.tooltipInfo;
