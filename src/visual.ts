@@ -161,6 +161,7 @@ module powerbi.extensibility.visual {
             // Use lodash to safely get the columns
             const columns = _.get<any[]>(options, 'dataViews.0.table.columns', []);
 
+
             // Create tooltip data to display tooltips on items
             let tooltipData = [];
 
