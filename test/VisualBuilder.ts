@@ -39,6 +39,7 @@ module powerbi.extensibility.visual.test {
         }
 
         protected build(options: VisualConstructorOptions) {
+            console.log(options);
             return new VisualClass(options);
         }
 

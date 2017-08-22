@@ -53,7 +53,7 @@ module powerbi.extensibility.visual.test {
         });
 
         describe("data rendering", () => {
-            it("negative and zero values", done => {
+            it("rendering items", done => {
                 let dataLength: number = defaultDataViewBuilder.valuesSourceDestination.length,
                     groupLength = Math.floor(dataLength / 3) - 2,
                     negativeValues = getRandomNumbers(groupLength, -100, 0),
@@ -69,6 +69,19 @@ module powerbi.extensibility.visual.test {
                     done();
                 });
             });
+
+            it("rendering columns", done => {
+                visualBuilder.updateRenderTimeout([defaultDataViewBuilder.getDataView()], () => {
+                    
+                    expect(visualBuilder.nodesElement.length).toBe(
+                        _(defaultDataViewBuilder.valuesSourceDestination)
+                            .countBy('0')
+                            .reduce((prevKey, key) => { return prevKey + 1 }, 0)
+                    );
+
+                    done();
+                }
+            })
         });
     });
 }
