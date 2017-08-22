@@ -2,6 +2,8 @@
 
 This is Trello-like visual module for PowerBI.
 
+![Trello-Like visual for PBI](https://github.com/adam-p/markdown-here/raw/master/assets/showcase.gif)
+
 To install this module use:
 
 ```
