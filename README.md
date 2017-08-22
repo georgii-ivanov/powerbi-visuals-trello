@@ -12,7 +12,7 @@ typings install
 To run this module use:
 
 ```
-pbiviz start
+npm run start
 ```
 
 To build the package use:
@@ -21,10 +21,15 @@ To build the package use:
 pbiviz package
 ```
 
-If you have a problems with API while start visual try to run following:
+If you have a problems with API while starting visual try to run following:
 
 ```
 pbiviz update
+```
+
+To run included unit-tests run:
+```
+npm run test
 ```
 
 To update your api version.
